@@ -1,0 +1,104 @@
+---
+title: "Analysis on the Mtcars Data Set"
+date: December 23, 2015
+output: pdf_document
+---
+##SUMMARY
+
+The company is interested in whether the automatic or manual transmission is better for MPG. To address this, the Motor Trend Car Road Data Set is used. The final result of the study shows that we cannot actually tell whether the automatic or the manual transmission is better for mileage as the mileage is also dependent on other factors such as the number of cylinders and the displacement of the automobile.   
+
+##EXPLORATORY ANALYSIS
+The data set was from the 1974 Motor Trend US Magazine comprises of fuel consumption (mpg) and 10 aspects of automobile performance for 32 automobiles. These aspects are: number of cylinders(cyl), displacement(disp), gross horsepower(hp), rear axle ratio(drat), weight(wt), 1/4 mile time(qsec), V/S(vs), transmission(am), number of forward gears(gear) and number of carburetors (card). For more information, this data set is also accessible in R built-in datasets.
+
+The data set is loaded in R using the following commands. Based on the summary of the data set, `cyl`, `vs`, `am`, `gear` and `carb` columns are numeric/continuous despite that they should be factored variables. This should be noted so that the correct analysis will be given.   
+
+```{r, echo=TRUE,results='hide'}
+data("mtcars");summary(mtcars);cars <- mtcars;cor(cars)
+```
+
+To find possible confounders, the `cor` function is used in the data set. Ignoring all factored columns as they affect the correlation result, `hp` and `wt` seems to have a strong correlation with `disp` (see Appendix, Figure 1). Also, `wt` and `qsec` have strong correlation with `hp` (see Appendix, Figure 2). And `drat` and `wt` have strong correlation with each other (see Appendix, Figure 3). Hence, some of these variables should be eliminated from the model.  
+
+Furthermore, the `cor` function result shows that `cyl`, `disp`, and `wt` have the strongest correlations to `mpg`. 
+
+
+```{r, echo=FALSE,results='hide'}
+cars$cyl <- factor(cars$cyl)
+cars$vs <- factor(cars$vs)
+cars$am <- factor(cars$am)
+cars$gear <- factor(cars$gear)
+cars$carb <- factor(cars$carb)
+```
+
+
+##MODEL SELECTION
+The company needs to determine whether MPG is better in manual than automatic. The following are different models that represent this relationship: the simplest of which is that mpg is dependent on transmission. The next models after it are included to see which variables significantly impact mpg. 
+
+```{r,echo=FALSE,results='markup'}
+fit <- lm(mpg~am,mtcars)
+fit1 <- lm(mpg~am+cyl+disp,mtcars)
+fit2 <- lm(mpg~am+cyl+disp+wt+hp,mtcars)
+fit3 <- lm(mpg~am+cyl+disp+wt+hp+drat+qsec,mtcars)
+fit4 <- lm(mpg~am+cyl+disp+wt+hp+drat+qsec+vs+gear,mtcars)
+fit5 <- lm(mpg~am+cyl+disp+wt+hp+drat+qsec+vs+gear+carb,mtcars)
+anova(fit,fit1,fit2,fit3,fit4,fit5)
+```
+
+The result shows that adding `cyl` and `disp` on the model is highly significantly. It is also parsimonious. Hence, `fit1` is selected as the model for the data. 
+
+##RESIDUALS
+The model selected is that of `mpg` is dependent on `am`, `cyl` and `disp`. The residual of this model is plotted on Appendix figure 4 and it shows that there is no certain pattern in the plot. Thus, it can be concluded that residuals were independently and almost identically distributed with mean zero. Furthermore, using the `hatvalues` function and `dfbetas` function, it seems that there is no outlier in the data.
+The residuals are also tested for their normality. Using `shapiro.test` function, it can be said that the residuals are normally distributed.
+```{r, echo=FALSE}
+shapiro.test(fit1$residuals)
+```
+##SELECTED MODEL
+```{r,echo=TRUE}
+mdl <- lm(mpg~am+cyl+disp,cars)
+summary(mdl)$coef
+```
+The following is the model for the data: 
+
+$$mpg = 27.83 + 1.64am1 - 4.68 cyl6 - 5.05 cyl8 - 0.02 disp$$
+
+where `am1` is 0 when the automobile is automatic and 1 if it is manual. `cyl6` is 1 if there is 6 cylinders in the automobile and 0 if otherwise. `cyl8` is 1 if there is 8 cylinders in the automobile and 0 if otherwise. Furthermore, for every increase in the displacement there is a decrease in `mpg` by 0.02 when other variables are held fixed.
+
+##CONCLUSION
+The resulting model has three independent variables: the transmission, the number of cylinders in the automobile and the displacement. With this, it cannot be actually concluded whether the mpg of the automatic is better than the manual or vice versa, as the mileage of the automobile is dependent on other factors and they are changing. 
+
+##APPENDIX
+
+
+**Figure 1: Correlation of Horsepower and weight to displacement**
+
+```{r, echo=FALSE,fig.height=7,fig.width=12}
+par(mfrow=c(1,2))
+plot(disp~hp,data=cars,col="violetred")
+plot(disp~wt,data=cars,col="slateblue")
+```
+
+**Figure 2: Correlation of Mile Time and Weight to Horsepower**
+
+```{r, echo=FALSE,fig.height=7,fig.width=12}
+par(mfrow=c(1,2))
+plot(hp~qsec,data=cars,col="springgreen")
+plot(hp~wt,data=cars,col="thistle")
+```
+
+\newpage
+**Figure 3: Correlation of Weight to Rear Axle Ratio**
+
+```{r, echo=FALSE,fig.height=5,fig.width=10}
+plot(drat~wt,data=cars,col="tomato")
+```
+
+**Figure 4: Residuals vs. Fitted Value**
+
+```{r, echo=FALSE,fig.height=5,fig.width=10}
+plot(fit1,which=1)
+```
+\newpage
+**Figure 5: Normality of the Residuals**
+
+```{r, echo=FALSE,fig.height=5,fig.width=10}
+plot(fit1,which=2)
+```
