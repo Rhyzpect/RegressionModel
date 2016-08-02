@@ -1,0 +1,169 @@
+---
+title: "ARA ASSIGNMENT #6"
+author: Rhyz C. Gomez
+date: February 8, 2016
+output: pdf_document
+---
+
+1. A substance used in biological and medical research is shipped by airfreight to users in cartons of 1000 ampules. The data below, involving 10 shipments, were collected on the number of times the carton was transferred from one aircraft to another over the shipment route (X) and the number of ampules found to be broken upon arrival (Y).
+
+```{r,echo=FALSE}
+library(knitr)
+i <- 1:10
+Xi <- c(1,0,2,0,3,1,0,1,2,0)
+Yi <- c(16,9,17,12,22,13,8,15,19,11)
+```
+
+```{r,echo=FALSE}
+broken <- rbind(Xi,Yi)
+broken <- data.frame(broken)
+colnames(broken) <- i
+kable(broken,
+      caption="Number of Ampules broken (Y) Due to Number of Times the Carton is Transferred (X)")
+```
+
+
+a. Obtain the residuals $e_i$ and plot them against $X_i$ to ascertain whether any departures from the assumptions are evident. What is your conclusion?
+
+```{r}
+data1 <- data.frame(Xi=Xi,Yi=Yi)
+result1 <- lm(Yi~Xi,data1)
+unlist(result1$residuals)
+```
+
+```{r,fig.height=4,fig.width=8}
+plot(result1$residuals~Xi,ylab="residuals", 
+     xlab="Number of times the Carton Was Transferred",
+     main="Residuals vs Xi",col="dark red",cex=1,pch=16)
+```
+
+
+There is no evident pattern in the graph and hence I can conclude that there is no departure of the model based on assumption of linearity of regression function and nonconstancy of error variance. 
+
+b. Prepare a normal probability plot of the residuals. What can you conclude? Perform a formal test on the normality of the error terms and interpret the result.
+
+```{r,fig.height=4,fig.width=8}
+plot(result1,which=2)
+```
+
+Based on the plot, there seems to be a violation on the assumption of normality of error terms.
+
+$H_o:$ Error Terms are normally distributed
+
+$H_a:$ Error Terms are not normally distributed
+
+```{r}
+shapiro.test(result1$residuals)
+```
+
+
+Based on Shapiro-Wilk Test, the p-value > 0.05. Hence, there is insufficient evidence to conclude that the error terms are not normally distributed. 
+
+\newpage
+
+2. A chemist studied the concentration of a solution (Y) over time (X). Fifteen solutions were prepared. The 15 solutions were randomly divided into five sets of three, and the five sets were measured, respectively, after 1, 3, 5, 7, and 9 hours. The results follow.
+
+```{r,echo=FALSE}
+j <- 1:15
+Xj <- c(9,9,9,7,7,7,5,5,5,3,3,3,1,1,1)
+Yj <- c(0.07,.09,.08,.16,.17,.21,.49,.58,.53,1.22,1.15,1.07,2.84,2.57,3.10)
+```
+
+```{r,echo=FALSE}
+solution <- rbind(Xj,Yj)
+solution<- data.frame(solution)
+colnames(solution) <- j
+kable(solution,caption="Solution Concentration X over Time Y")
+```
+
+
+a. Fit a linear regression function.
+
+```{r}
+data2 <- data.frame(Xj=Xj,Yj=Yj)
+result2 <- lm(Yj~Xj,data2)
+result2
+```
+
+Based on the result using R, the fitted linear regression function is
+$$Y = -0.324X + 2.575$$
+
+
+b. Perform an F test to determine whether or not there is a lack of fit on the linear regression function. At an $\alpha$ = 0.025, interpret the result of the test.
+
+$$H_o: E(Y) = \beta_o + \beta_1X_i$$ 
+$$H_a: E(Y) \ne \beta_o + \beta_1X_i$$
+
+
+```{r}
+Model1 <- lm(Yj~Xj,data2)
+Model2 <- lm(Yj~as.factor(Xj),data2)
+anova(Model1,Model2)
+```
+
+
+The result shows that F < 0.025. Hence we reject $H_o$ and conclude that the linear regression function lacks fit. 
+
+c. Prepare a scatter plot of the data. Interpret the plot.
+
+```{r,fig.height=6,fig.width=10}
+plot(Yj~Xj,data2,ylab="Solution Concentration",xlab="Time",
+     main="Scatterplot of Data2 with Estimated Linear Regression Function",
+     pch=16,col="dark green",cex=1)
+abline(Model1,lwd=1.5,col="spring green")
+```
+
+
+The plot shows that the estimated linear regression function is not a good fit. 
+
+d. Use the transformation $Y' = log_{10}Y$ and obtain the estimated linear regression function for the transformed data.
+
+```{r}
+data2.1 <- data.frame(Xj=Xj,Yj=log10(Yj))
+result2.1 <- lm(Yj~Xj,data2.1)
+result2.1
+```
+
+
+The estimated linear regression function after transformation is 
+
+$$Y = -0.1954X + 0.6549$$
+
+
+
+e. Plot the estimated regression line and the transformed data. Does the regression line appear to be a good fit to the transformed data?
+
+```{r,fig.height=5,fig.width=10}
+plot(Yj~Xj,data2.1,xlab="Time",ylab="Solution Concentration",
+     main="Scatterplot of the Transformed Data2 with Estimated Regression Line",
+     cex=1,col="dark blue",pch=16)
+abline(result2.1,lwd=2,col="thistle2")
+
+```
+
+
+After transformation, the new estimated linear regression function is now a good fit to the transformed data based on the plot. 
+
+f. Obtain the residuals and plot them against fitted values. Also prepare a normal probability plot. What do your plots show?
+
+```{r}
+unlist(result2.1$residuals)
+```
+
+
+
+```{r,fig.height=4,fig.width=8}
+plot(result2.1,which=1)
+plot(result2.1,which=2)
+shapiro.test(result2.1$residuals)
+```
+
+Looking at the first plot, there is no evident pattern of the residuals. Thus, the assumptions of linearity of regression function and nonconstancy of error variance are not violated.  
+
+I got skeptical with the second plot as it seems like there is a certain pattern involved. However doing shapiro.test, we can say that there is not enough evidence to conclude that the error terms are not normally distributed. 
+
+
+g. Express the estimated regression equation in the original units.
+
+
+$$antilog(Y) = antilog(-0.1954X + 0.6549)$$ 

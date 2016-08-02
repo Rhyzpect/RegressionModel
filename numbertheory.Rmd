@@ -1,0 +1,326 @@
+---
+title: "Number Theory: Assignment 1"
+author: Rhyz Gomez
+date: November 27, 2015
+output: pdf_document
+---
+
+**1. List all integers which can divide the ff. by using the tests above and be sure to show the complete solution.**
+
+**a. 8,728,761,020**
+
+```{r, echo=FALSE,error=FALSE,warning=FALSE,prompt=FALSE,message=FALSE}
+library(gmp)
+library(plyr)
+library(Rcpp)
+library(knitr)
+get_all_factors <- function(n)
+{
+        prime_factor_tables <- lapply(
+                setNames(n, n), 
+                function(i)
+                {
+                        if(i == 1) return(data.frame(x = 1L, freq = 1L))
+                        plyr::count(as.integer(gmp::factorize(i)))
+                }
+        )
+        lapply(
+                prime_factor_tables, 
+                function(pft)
+                {
+                        powers <- plyr::alply(pft, 1, function(row) row$x ^ seq.int(0L, row$freq))
+                        power_grid <- do.call(expand.grid, powers)
+                        sort(unique(apply(power_grid, 1, prod)))
+                }
+        )
+}
+
+allfactor <- unlist(get_all_factors(8728761020))
+allfactor <- as.matrix(allfactor)
+allfactor <- matrix(allfactor[,1],nrow=9,ncol=8)
+kable(allfactor)
+
+```
+
+**Explanation:**
+8,728,761,020 - The number ends in 0. Then, it is divisible by 5 and 10. Since it is divisible by 10, it is also divisible by 2. 
+
+$8,728,761,020 = (872,876,102)*5*2$
+
+Since 872,876,102 is an even number, then it is divisible by 2. 
+
+$8,728,761,020 = (436,438,051)*2*5*2$
+
+Grouping 436,438,051 by 3 digits and alternately add and subtract each group, we get a result of 436- 438 + 051 = 49. Then, the digit is divisible by 49 which is also divisible by 7.
+
+$8,728,761,020 = (8,906,899)*7*7*2*5*2$
+
+The last digit of 8,906,899 is 9 and the remaining digits after getting the last digit is 890689. Multiply 9 by 11 and subtract it by the remaining digits, i.e., 890689 - 9(11) =  890590. Continue this step to get a smaller integer.
+
+890590 - 0(11) =  890590
+
+89059 - 0(11) =  89059
+
+8905 - 9(11) =  8806
+
+880 - 6(11) = 814
+
+81 - 4(11) = 37
+
+Hence, 8,728,761,020 is divisible by 37.
+
+$8,728,761,020 = (240,727)*37*7*7*2*5*2$
+
+240,727 is a prime number. Hence, its only factors are one and itself. Thus, the prime factors of 8,728,761,020 are 2, 2, 5, 7, 7, 37, 240727. Get all the combination of this numbers and those combinations are also factors of 8,728,761,020. For instance, 2x2 = 4, 2x37 = 74. 4 and 74 are also factors of 8,728,761,020.  
+
+
+\newpage
+
+
+**b. 988,752,765**
+
+```{r, echo=FALSE}
+allfactor2 <- unlist(get_all_factors(988752765))
+allfactor2 <- as.matrix(allfactor2)
+allfactor2 <- matrix(allfactor2[,1],nrow=8,ncol=8)
+kable(allfactor2)
+```
+
+**Explanation:**
+988,752,765 ends in 5, then it is divisible by 5. 
+
+$988,752,765 = 197750553*5$
+
+Add all the digit of 197750553, we get 1 + 9 + 7 + 7 + 5 + 0 + 5 + 5 + 3 = 42. 42 is divisible by 3. Then 197750553 is also divisible by 3.
+
+$988,752,765 = 65916851*3*5$
+
+Group 65916851 by three digits and alternately add and subtract the groups. This leads to 65 - 916 + 851 = 0. Hence it is zero, it is divisible by both 7, 11 and 13. 
+
+$988,752,765 = 65851*7*11*13*3*5$
+
+65851 is a prime number. It has no other factors except for one and itself. Then the prime factors of 988,752,765 are 65851, 7, 11, 13, 3, 5. Get all the combinations of these factors and those combinations are also factors of 988,752,765.
+
+
+**c. 44,631,024**
+
+```{r, echo=FALSE}
+allfactor3 <- unlist(get_all_factors(44631024))
+allfactor3 <- as.matrix(allfactor3)
+allfactor3 <- matrix(allfactor3[,1],nrow=4,ncol=5)
+kable(allfactor3)
+```
+
+**Explanation:**
+44,631,024 is an even number and it's last two digits, i.e. 24, is divisible by 4. Then, the number is divisible by 2 or 4. 
+
+$44,631,024 = 11157756*2*2$
+
+11,157,756 is again an even number and the last two digits, i.e. 56, is divisible by 4. Thus, it is divisible by 2 or 4.
+
+$44,631,024 = 2789439*2*2*2*2$
+
+Add all the digits of 2789439. 2 + 7 + 8 + 9 + 4 + 3 + 9 = 42. 42 is divisible by 3, then 3 divides 2789439.  
+
+$44,631,024 = 929813*3*2*2*2*2$
+
+929813 is a prime number. Then the prime factors of 44,631,024 are 2, 2, 2, 2, 3, 929813. Get the combinations of these factors and these combinations are factors of  44,631,024, such as 2x2x2x2 = 16, 2x3 = 6.
+ 
+
+
+**d. 28,456,015,796,354,096**
+
+```{r, echo=FALSE,error=FALSE,warning=FALSE,prompt=FALSE}
+allfactor4 <- unlist(get_all_factors(28456015796354096))
+allfactor4 <- as.matrix(allfactor4)
+allfactor4 <- matrix(allfactor4[,1],nrow=5,ncol=2)
+f4 <- c(77326129881397,77326129881397*2,77326129881397*2*2,77326129881397*2*2*2,77326129881397*2*2*2*2)
+f41 <- f4*23
+f441 <- matrix(c(f4,f41),nrow=5)
+allfactor4 <- cbind(allfactor4,f441)
+allfactor4 <- as.data.frame(allfactor4)
+allfactor4$V3 <- as.character(allfactor4$V3)
+allfactor4$V4 <- as.character(allfactor4$V4)
+kable(allfactor4,col.names = NULL)
+```
+
+**Explanation:**
+
+28,456,015,796,354,096 is an even number and its last three digits,i.e., 096, is divisible by 4 or 8. Then 28,456,015,796,354,096 is divisible by 2 or 4 or 8.
+
+$28,456,015,796,354,096 = 3557001974544262*2*2*2$
+
+3,557,001,974,544,262 is still an even number. Then it is divisible by 2. 
+
+$28,456,015,796,354,096 = (1,778,500,987,272,131)*2*2*2*2$
+
+Get the last digit of 1,778,500,987,272,131, i.e. 1, multiply it by 7 and add to the remaining digits. Repeat until small number is achieved. 
+
+177,850,098,727,213 + 7*1 = 177850098727220
+
+17785009872722 + 7*0 = 17785009872722
+
+1778500987272 + 7*2 = 1778500987286
+
+177850098728 + 7*6 = 177850098770
+
+17785009877 + 7*0 = 17785009877
+
+1778500987 + 7*7 = 1778501036
+
+177850103 + 7*6 = 177850145
+
+17785014 + 7*5 = 17785049
+
+1778504 + 7*9 = 1778567
+
+177856 + 7*7 = 177905
+
+17790 + 7*5 = 17825
+
+1782 + 7*5 = 1817
+
+181 + 7*7 = 230
+
+23 + 7*0 = 23
+
+Therefore, 177,850,098,727,213 is divisible by 23. 
+
+$28,456,015,796,354,096 = (77,326,129,881,397)*2*2*2*2*23$
+
+77,326,129,881,397 is a prime number. Then the prime factors of 28,456,015,796,354,096 are 77326129881397, 2, 2, 2, 2, 23. Take the combinations of these factors and the combinations are also factors of 28,456,015,796,354,096. 
+
+
+**2. Give a complete proof of the divisibility test of the following:**
+
+**a. Prove that 4|N iff 4| the last two-digit of N.**
+
+Suppose that 4|N where 
+
+$$N = a_{n}10^{n} + a_{n-1}10^{n-1} + a_{n-2}10^{n-2}+ ... + a_{2}10^{2} + a_{1}10 + a_{0}$$
+$$N = 100(a_{n}10^{n-2} + a_{n-1}10^{n-3} + a_{n-2}10^{n-4}+ ... + a_{2}10^{0}) +  a_{1}10 + a_{0}$$
+$$N = (4*25)(a_{n}10^{n-2} + a_{n-1}10^{n-3} + a_{n-2}10^{n-4}+ ... + a_{2}) +  a_{1}10 + a_{0}$$
+
+Let $z = a_{n}10^{n-2} + a_{n-1}10^{n-3} + a_{n-2}10^{n-4}+ ... + a_{2}$. Then, $N = (4*25)z + a_{1}10 + a_{0}$. Since 4 divides `N`, there exists `m` such that $N = 4m$, where `m` is an integer. 
+
+$$4m = (4*25)z + a_{1}10 + a_{0}$$
+$$a_{1}10 + a_{0} = 4m - (4*25)z$$
+$$a_{1}10 + a_{0} = 4(m - 25z)$$
+$$a_{1}10 + a_{0} = 4s$$ 
+
+where $s = m - 25z$. Therefore if `N` is divisible by 4, the last two digits are divisible by 4.
+
+On the other hand, suppose the last two digits are divisible by 4. Then there exists `r` such that $a_{1}10 + a_{0} = 4r$, where `r` is an integer. Hence,
+
+
+$$N = a_{n}10^{n} + a_{n-1}10^{n-1} + a_{n-2}10^{n-2}+ ... + a_{2}10^{2} + 4r$$
+$$N = 100(a_{n}10^{n-2} + a_{n-1}10^{n-3} + a_{n-2}10^{n-4}+ ... + a_{2}10^{0}) +  4r$$
+$$N = (4*25)(a_{n}10^{n-2} + a_{n-1}10^{n-3} + a_{n-2}10^{n-4}+ ... + a_{2}) + 4r$$
+
+Let $t = a_{n}10^{n-2} + a_{n-1}10^{n-3} + a_{n-2}10^{n-4}+ ... + a_{2}$. Then, 
+
+
+$$N = 100t + 4r$$
+$$N = 4(25t + r)$$
+$$N = 4p$$
+
+where $p = 25t + r$. Therefore if the last two digits are divisible by four then the number is divisible by four. 
+
+**b. Prove that 5|N iff N ends with 0 or 5.**
+
+Suppose 5|N, where
+
+$$N = a_{n}10^{n} + a_{n-1}10^{n-1} + a_{n-2}10^{n-2}+ ... + a_{2}10^{2} + a_{1}10 + a_{0}$$
+$$N = 10(a_{n}10^{n-1} + a_{n-1}10^{n-2} + a_{n-2}10^{n-3}+ ... + a_{2}10^{1} + a_{1}) + a_{0}$$
+
+Let $s = a_{n}10^{n-1} + a_{n-1}10^{n-2} + a_{n-2}10^{n-3}+ ... + a_{2}10^{1} + a_{1}, then $N = 10s + a_{0}$. Since `N` is divisible by 5, there exists `t` such that $N = 5t$ where t is any integer. Hence,
+
+$$5t = 10s + a_{0}$$
+$$a_{0} = 5t - 10s$$
+$$a_{0} = 5(t-2s)$$
+
+This implies that $a_{0}$ is divisible by 5. A one digit that is divisible by 5 is either 0 or 5. Then $a_{0}$ is 0 or 5. Therefore, if 5|N, then the last digit is 0 or 5. 
+
+On the other note, suppose the last digit is either 0 or 5. 
+
+*Case 1: Last digit is 0*
+
+Let 
+
+$$N = a_{n}10^{n} + a_{n-1}10^{n-1} + a_{n-2}10^{n-2}+ ... + a_{2}10^{2} + a_{1}10 + 0$$
+$$N = 10(a_{n}10^{n-1} + a_{n-1}10^{n-2} + a_{n-2}10^{n-3}+ ... + a_{2}10^{1} + a_{1})$$
+$$N = 10p$$
+$$N = 5(2p)$$
+
+where $p = a_{n}10^{n-1} + a_{n-1}10^{n-2} + a_{n-2}10^{n-3}+ ... + a_{2}10^{1} + a_{1}$. Thus, if N ends in 0, it is divisible by 5.
+
+*Case 2: Last digit is 5*
+
+Let 
+
+$$N = a_{n}10^{n} + a_{n-1}10^{n-1} + a_{n-2}10^{n-2}+ ... + a_{2}10^{2} + a_{1}10 + 5$$
+$$N = 10(a_{n}10^{n-1} + a_{n-1}10^{n-2} + a_{n-2}10^{n-3}+ ... + a_{2}10^{1} + a_{1}) + 5$$
+$$N = 10q + 5$$
+$$N = 5(2q + 1)$$
+
+where $q = a_{n}10^{n-1} + a_{n-1}10^{n-2} + a_{n-2}10^{n-3}+ ... + a_{2}10^{1} + a_{1}$. Thus, if N ends in 5, it is divisible by 5.
+
+
+
+**c. Prove that 6|N iff 3|N and 2|N**
+
+Suppose 6|N, then there exists `p` such that $N = 6p$ where `p` is any integer. This follows that $N = 3(2p)$ or $N = 2(3p)$. Therefore, if 6 divides `N`, then the number is divisible by both 3 and 2.   
+
+On the other hand, let 3|N and 2|N. Then there exists `s` such that $N = 3s$. Furthermore, since it is also divisible by 2 then there exists `t` such that $N = 2t$ where $t = 3s$ and `s` is any integer. This implies that $N = 2(3s)$ and $N = 6s$.  Therefore, if 3|N and 2|N, then 6|N.
+
+
+**d. Prove that 8|N iff 8|(the last three digits of N)**
+
+Suppose 8|N, where
+
+$$N = a_{n}10^{n} + a_{n-1}10^{n-1} + a_{n-2}10^{n-2}+ ... + a_{2}10^{2} + a_{1}10 + a_{0}$$
+$$N = (1000)(a_{n}10^{n-3} + a_{n-1}10^{n-4} + a_{n-2}10^{n-5}+ ... +a_{3})+ a_{2}10^{2} + a_{1}10 + a_{0}$$
+
+Let $p = a_{n}10^{n-3} + a_{n-1}10^{n-4} + a_{n-2}10^{n-5}+ ... +a_{3}$, then $N = 1000p + a_{2}10^{2} + a_{1}10 + a_{0}$. Since `N` is divisible by 8, there exists `q` such that $N = 8q$ where q is any integer. This follows that
+
+$$8q = 1000p + a_{2}10^{2} + a_{1}10 + a_{0}$$
+$$a_{2}10^{2} + a_{1}10 + a_{0} = 8q - 1000p$$
+$$a_{2}10^{2} + a_{1}10 + a_{0} = 8(q - 125p)$$
+
+This implies that when N is divisible by 8, the last three digits are divisible by 8.
+
+Now suppose that the last three digits are divisible by 8. Let $a_{2}10^{2} + a_{1}10 + a_{0} = 8r$, then 
+
+$$N = a_{n}10^{n} + a_{n-1}10^{n-1} + a_{n-2}10^{n-2}+ ... + a_{3}10^{3}+ 8r$$
+$$N = (1000)(a_{n}10^{n-3} + a_{n-1}10^{n-4} + a_{n-2}10^{n-5}+ ... +a_{3}) + 8r$$
+
+Let $s = a_{n}10^{n-3} + a_{n-1}10^{n-4} + a_{n-2}10^{n-5}+ ... +a_{3}$, then 
+
+$$N = 1000s + 8r$$
+$$N = 8(125s + r)$$
+
+Therefore, if the last three digits are divisible by 8, then number is also divisible by 8.
+
+\newpage
+
+**e. Prove that 10|N iff N ends with 0. **
+
+Suppose that `N` ends with 0, then 
+
+$$N = a_{n}10^{n} + a_{n-1}10^{n-1} + a_{n-2}10^{n-2}+ ... + a_{2}10^{2} + a_{1}10 + 0$$
+$$N = 10(a_{n}10^{n-1} + a_{n-1}10^{n-2} + a_{n-2}10^{n-3}+ ... + a_{2}10^{1} + a_{1})$$
+
+Let $v = a_{n}10^{n-1} + a_{n-1}10^{n-2} + a_{n-2}10^{n-3}+ ... + a_{2}10^{1} + a_{1}$, then $N = 10v$. Therefore if `N` ends with 0, the number is divisible by 10.
+
+On the other hand, let 10|N where 
+
+$$N = a_{n}10^{n} + a_{n-1}10^{n-1} + a_{n-2}10^{n-2}+ ... + a_{2}10^{2} + a_{1}10 + a+{0}$$
+$$N = 10(a_{n}10^{n-1} + a_{n-1}10^{n-2} + a_{n-2}10^{n-3}+ ... + a_{2}10^{1}) + a_{1}10 + a+{0}$$
+
+Let $w = a_{n}10^{n-1} + a_{n-1}10^{n-2} + a_{n-2}10^{n-3}+ ... + a_{2}10^{1}$, then $N = 10w + a_{1}10 + a+{0}$. Since 10 divides `N`, there exists `u` such that $N = 10u$ where `u` is any integer. This follows that 
+
+$$10u = 10w + a_{1}10 + a+{0}$$
+$$a_{1}10 + a+{0} = 10u - 10w$$
+$$a_{1}10 + a+{0} = 10(u - w)$$
+
+This implies that the last two digits is divisible by 10 and hence the first/last digit is 0. Therefore, if `N` is divisible by 10, the number is divisible by 10.
